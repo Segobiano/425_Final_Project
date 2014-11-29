@@ -164,6 +164,7 @@ GameApplication::toggleState(GameState s)
 		mTrayMgr->getTrayContainer(OgreBites::TL_TOPRIGHT)->show();	//reveal top applicable trays
 		initCreepPhaseB->show();
 		endGameB->show();	
+		mCamera->lookAt(10,0,0);
 	}
 	else if (State == GAME_RUNNING)
 	{
@@ -185,7 +186,7 @@ GameApplication::toggleState(GameState s)
 		
 		//spawn agents at spheres
 		// set up agent's movement
-		std::list<GridNode*> moveAround = grid->buildPath();
+		//std::list<GridNode*> moveAround = grid->buildPath();
 		std::list<Agent*>::iterator iterA;
 		for (iterA = agentList.begin(); iterA != agentList.end(); iterA++)
 			if (*iterA != NULL)
@@ -215,6 +216,13 @@ GameApplication::addTime(Ogre::Real deltaTime)
 	}
 	else if (State == GAME_RUNNING)
 	{
+		//the case they all died or not
+		if (agentList.size()==0){
+			toggleState(GAME_BUILD);
+			agentList=invisList;
+			invisList.empty();
+			//here we check if the player life >0 or round is 20
+		}
 		if (nextAgent != agentList.end())
 		{
 			counter += deltaTime;
@@ -237,14 +245,19 @@ GameApplication::addTime(Ogre::Real deltaTime)
 					{
 						cash += 100; //earn cash for the kill
 						(*iterA)->toggleVisibility(false);	//hide it
+						(*iterA)->toggleActive(false);	//hide it
 						invisList.push_back((*iterA));
+						(*iterA)->setPosition(grid->getPosition(restartR,restartC)[0],grid->getPosition(restartR,restartC)[1],grid->getPosition(restartR,restartC)[2]);
 						agentList.erase(iterA++);		//remove and increment
+						
 					}
 					else if ((*iterA)->mWalkList.empty())	//agent made it to goal
 					{
 						mLives--;
 						(*iterA)->toggleVisibility(false);	//hide it
+						(*iterA)->toggleActive(false);	//hide it
 						invisList.push_back((*iterA));
+						(*iterA)->setPosition(grid->getPosition(restartR,restartC)[0],grid->getPosition(restartR,restartC)[1],grid->getPosition(restartR,restartC)[2]);
 						agentList.erase(iterA++);		//remove and increment
 					}
 					else
@@ -550,7 +563,7 @@ void GameApplication::buttonHit(OgreBites::Button* b)
 		
 		toggleState(GAME_BUILD);	//set game into build mode
 		//This moves the camera up
-		mCamera->lookAt(10,0,0);
+		
 	}
 	else if (b->getName() == "Creep")
 	{
@@ -596,6 +609,10 @@ void GameApplication::createBoard(){
 			if (grid->getNode(x,y)->isClear()){ 
 					break;
 			}
+		}
+		if (i==0){
+			restartR=x;
+			restartC=y;
 		}
 		grid->getNode(x,y)->setOccupied(); 
 		grid->getNode(x,y)->wp = true;

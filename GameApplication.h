@@ -10,6 +10,8 @@ class Tower;
 class GameApplication : public BaseApplication
 {
 private:
+	int restartR;
+	int restartC;
 	Grid* grid;
 	Ogre::Entity* floor;
 	std::list<Agent*>::iterator iterAgent;
