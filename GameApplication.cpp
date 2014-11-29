@@ -158,13 +158,13 @@ GameApplication::toggleState(GameState s)
 		wAgent=0;
 		//toggle overview with camera with fixed position and showing grid outlines
 
-		mCamera->setPosition(Ogre::Vector3(0,1000,0));
+		mCamera->setPosition(Ogre::Vector3(-150,1000,0));
 		
 		mTrayMgr->getTrayContainer(OgreBites::TL_CENTER)->hide();	//hide the menu, by hiding the center tray
 		mTrayMgr->getTrayContainer(OgreBites::TL_TOPRIGHT)->show();	//reveal top applicable trays
 		initCreepPhaseB->show();
 		endGameB->show();	
-		mCamera->lookAt(10,0,0);
+		mCamera->lookAt(-150,0,-10);
 	}
 	else if (State == GAME_RUNNING)
 	{
@@ -218,9 +218,9 @@ GameApplication::addTime(Ogre::Real deltaTime)
 	{
 		//the case they all died or not
 		if (agentList.size()==0){
-			toggleState(GAME_BUILD);
 			agentList=invisList;
-			invisList.empty();
+			invisList.clear();
+			toggleState(GAME_BUILD);
 			//here we check if the player life >0 or round is 20
 		}
 		if (nextAgent != agentList.end())
@@ -560,7 +560,7 @@ void GameApplication::buttonHit(OgreBites::Button* b)
 	{
 		//mTrayMgr->destroyAllWidgetsInTray(OgreBites::TL_CENTER);	//going to remove this, so we don't have to rebuild GUI each time
 		toggleState(GAME_LOAD);		//load level
-		
+		//mCamera->roll(Ogre::Radian(Ogre::Degree(180)));
 		toggleState(GAME_BUILD);	//set game into build mode
 		//This moves the camera up
 		
