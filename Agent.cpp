@@ -22,8 +22,8 @@ Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string fil
 
 	
 	mBodyNode->setPosition(grid->getPosition(myNode->getRow(),myNode->getColumn()));
-	mBodyNode->translate(0,height,0); // make the Ogre stand on the plane (almost)
-	mBodyNode->scale(scale,scale,scale); // Scale the figure
+	mBodyNode->translate(0, height, 0); // make the Ogre stand on the plane (almost)
+	mBodyNode->scale(scale, scale, scale); // Scale the figure
 
 	setupAnimations();  // load the animation for this character
 
@@ -31,7 +31,7 @@ Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string fil
 	mWalkSpeed = 35.0f;	
 	mDirection = Ogre::Vector3::ZERO;
 
-	mHealth = 10.0;
+	mHealth = 1.0;
 	active = false;
 }
 

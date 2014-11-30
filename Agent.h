@@ -70,10 +70,13 @@ public:
 
 	Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale, Grid* g,GridNode* node);
 	~Agent();
-	double howFar(Agent* g);
-	std::deque<Ogre::Vector3> mWalkList;
-	Ogre::Real mTimer;		
+		
 	float mHealth;		//indicates the status of the agent
+	Ogre::Real mTimer;	
+	std::deque<Ogre::Vector3> mWalkList;
+
+	double howFar(Agent* g);
+
 	void setPosition(float x, float y, float z);	// set position
 	Ogre::Vector3 getPosition();					// get position of agent
 	

@@ -12,25 +12,28 @@ class GameApplication : public BaseApplication
 private:
 	int restartR;
 	int restartC;
+
 	Grid* grid;
+	GridNode* selectedNode;
+	
 	Ogre::Entity* floor;
 	std::list<Agent*>::iterator iterAgent;
 	std::list<GridNode*> moveAround;
+	
 	Ogre::SceneNode* mSelected;
 	Ogre::SceneNode* mTrap;
-	std::vector<Ogre::SceneNode*> mNumList;
-	GridNode* selectedNode;
+	std::vector<Ogre::SceneNode*> mNumList;	
+	
 	int selectedR;
 	int selectedC;
 	double timecall;
-	std::list<Agent*>::iterator iterBB;
 	
-	Agent* agent; // store a pointer to the character
-	std::list<Agent*> agentList;	// Lecture 5: now a list of agents
-	std::list<Agent*> invisList;	// put agents in this list once they are dead or reach the end
-	
+	Agent* agent;						// store a pointer to the character
+	std::list<Agent*> agentList;		// Lecture 5: now a list of agents
+	std::list<Agent*> invisList;		// put agents in this list once they are dead or reach the end
+	std::list<Agent*>::iterator iterBB;	
 	std::list<Agent*>::iterator nextAgent;	//next agent to activate
-	std::list<Tower*> towerList;	// a list of towers! 
+	std::list<Tower*> towerList;		// a list of towers! 
 
 	int mLives;		//these values need to be initialized still in .cpp if they are going to be used
 	int mWalls;
@@ -78,6 +81,7 @@ private:
 	void loadObjects();		// Load other props or objects (e.g. furniture)
 	void loadCharacters();	// Load actors, agents, characters
 	void toggleState(GameState s);	//toggle game to change states
+	void createStatusGUI();	// creat a GUI to display agent status
 	
 public:
     GameApplication(void);			//constructor

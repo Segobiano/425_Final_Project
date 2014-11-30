@@ -80,7 +80,7 @@ Tower::shoot(Ogre::Real deltaTime)
 	//std::cout << "Pew, Pew" << std::endl;
 	if (mTarget->intersects(orbEntity)) // orb hit target, deal damage and reload
 	{
-		//mTarget->mHealth--; //decrease targets health
+		mTarget->mHealth--; //decrease targets health
 		reload(); // if collides, reset orb back at tower
 		//show some sort of effect here so player knows a collision happened
 		return;

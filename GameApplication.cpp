@@ -159,51 +159,44 @@ GameApplication::toggleState(GameState s)
 	{
 		mTrayMgr->showAll();
 		mTrayMgr->getTrayContainer(OgreBites::TL_TOPRIGHT)->hide();		//show only the center tray for start menu
-		mTrayMgr->getTrayContainer(OgreBites::TL_BOTTOMLEFT)->hide();
 	}
 	else if (State == GAME_LOAD)
 	{
 		createBoard();		//generate walls, spheres, and grid
 
-		mTrayMgr->getTrayContainer(OgreBites::TL_BOTTOMLEFT)->show();	//status panel for debugging info
-		mStatusPanel->show();
-
+		//createStatusGUI();	//issues with an agent health gui right now, don't use
 	}
 	else if (State == GAME_BUILD)
 	{
 		//turns on those numbers of waypoints
-		for (int p=0;p<mNumList.size();p++){
+		for (int p=0;p<mNumList.size();p++)
 			mNumList[p]->setVisible(true);
-		}
 		wAgent=0;
 		//toggle overview with camera with fixed position and showing grid outlines
-
 		mCamera->setPosition(Ogre::Vector3(-150,1000,0));
-		
+		mCamera->lookAt(-150,0,-10);
+
 		mTrayMgr->getTrayContainer(OgreBites::TL_CENTER)->hide();	//hide the menu, by hiding the center tray
+		//mTrayMgr->getTrayContainer(OgreBites::TL_TOPLEFT)->show();	//status panel for debugging info
 		mTrayMgr->getTrayContainer(OgreBites::TL_TOPRIGHT)->show();	//reveal top applicable trays
+		//mStatusPanel->show();
 		initCreepPhaseB->show();
 		endGameB->show();	
-		mCamera->lookAt(-150,0,-10);
 	}
 	else if (State == GAME_RUNNING)
 	{
-		
 		//turns off the numbers
 		for (int p=0;p<mNumList.size();p++){
 			mNumList[p]->setVisible(false);
 		}
 
-		moveAround=grid->buildPath();
-		nextAgent = agentList.begin();
-
+		moveAround = grid->buildPath();		//build a path to destination
+		nextAgent = agentList.begin();		//point to first agent to walk
 		mSelected->setVisible(false,true);
 		mTrap->setVisible(false,true);
 		initCreepPhaseB->hide();
 
 		//adjusting the camera for after the build
-
-
 		mCamera->setPosition(0, 600, 300);
 
 		//mCamera->lookAt(grid->getPosition(grid->waypoints.front()->getRow(),
@@ -217,9 +210,6 @@ GameApplication::toggleState(GameState s)
 		for (iterA = agentList.begin(); iterA != agentList.end(); iterA++)
 			if (*iterA != NULL)
 				(*iterA)->moveAgent(moveAround);
-		
-		//activate towers
-
 	}
 	else if (State == GAME_END)
 	{
@@ -242,12 +232,12 @@ GameApplication::addTime(Ogre::Real deltaTime)
 	}
 	else if (State == GAME_RUNNING)
 	{
-		//the case they all died or not
-		if (agentList.size()==0){
-			agentList=invisList;
+		//the case they all died or got to the end
+		if (agentList.size() == 0){
+			agentList = invisList;
 			invisList.clear();
 			toggleState(GAME_BUILD);
-			//here we check if the player life >0 or round is 20
+			//here we check if the player life > 0 or round is 20
 		}
 		if (nextAgent != agentList.end())
 		{
@@ -261,29 +251,37 @@ GameApplication::addTime(Ogre::Real deltaTime)
 				counter = 0.0;
 			}
 		}
+		int gui_count = 0;
 		std::list<Agent*>::iterator iterA = agentList.begin();
 		while (iterA != agentList.end())
 		{
 			if ((*iterA) != NULL)
 			{
-				if ((*iterA)->isActive()){
+				if ((*iterA)->isActive())
+				{
+					//update agent's status panel
+					//mStatusPanel->setParamValue(gui_count,  Ogre::StringConverter::toString((*iterA)->mHealth) + "%");
 					if ((*iterA)->checkHealth() <= 0)	//killed an agent
 					{
-						cash += 100; //earn cash for the kill
-						(*iterA)->toggleVisibility(false);	//hide it
-						(*iterA)->toggleActive(false);	//hide it
+						cash += 100;	//earn cash for the kill
+						(*iterA)->toggleVisibility(false);
+						(*iterA)->toggleActive(false);
 						invisList.push_back((*iterA));
-						(*iterA)->setPosition(grid->getPosition(restartR,restartC)[0],grid->getPosition(restartR,restartC)[1],grid->getPosition(restartR,restartC)[2]);
+						(*iterA)->setPosition(	grid->getPosition(restartR,restartC)[0],
+												grid->getPosition(restartR,restartC)[1],
+												grid->getPosition(restartR,restartC)[2]	);
 						agentList.erase(iterA++);		//remove and increment
 						
 					}
 					else if ((*iterA)->mWalkList.empty())	//agent made it to goal
 					{
 						mLives--;
-						(*iterA)->toggleVisibility(false);	//hide it
-						(*iterA)->toggleActive(false);	//hide it
+						(*iterA)->toggleVisibility(false);
+						(*iterA)->toggleActive(false);
 						invisList.push_back((*iterA));
-						(*iterA)->setPosition(grid->getPosition(restartR,restartC)[0],grid->getPosition(restartR,restartC)[1],grid->getPosition(restartR,restartC)[2]);
+						(*iterA)->setPosition(	grid->getPosition(restartR,restartC)[0],
+												grid->getPosition(restartR,restartC)[1],
+												grid->getPosition(restartR,restartC)[2]	);
 						agentList.erase(iterA++);		//remove and increment
 					}
 					else
@@ -294,7 +292,9 @@ GameApplication::addTime(Ogre::Real deltaTime)
 				}
 				else iterA++;
 			}
-		}
+		gui_count++;
+		}	// end agent update
+
 		//update projectiles
 
 		//update traps
@@ -318,8 +318,8 @@ GameApplication::addTime(Ogre::Real deltaTime)
 
 	}
 	//update debug status window
-	mStatusPanel->setParamValue(0, Ogre::StringConverter::toString(State));
-	mStatusPanel->setParamValue(1, Ogre::StringConverter::toString(mCamera->getPosition()));
+	//mStatusPanel->setParamValue(0, Ogre::StringConverter::toString(State));
+	//mStatusPanel->setParamValue(1, Ogre::StringConverter::toString(mCamera->getPosition()));
 
 	//update camera
 	mCamera->move(vTranslate);
@@ -490,7 +490,6 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		mousePos.x = arg.state.X.abs;
 		mousePos.y = arg.state.Y.abs;
 		mousePos.z = arg.state.Z.abs;
-		
  
 		//then send a raycast straight out from the camera at the mouse's position
 		Ogre::Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.x/float(arg.state.width), mousePos.y/float(arg.state.height));
@@ -548,7 +547,7 @@ bool GameApplication::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButto
     return true;
 }
 
-// set up ALL gui's for the game. 
+// set up most gui's for the game. 
 void GameApplication::createGUI(void)
 {
 	//////////////////////////////////////////////////////////////////////////////////
@@ -556,21 +555,15 @@ void GameApplication::createGUI(void)
 	if (mTrayMgr == NULL) return;
 	using namespace OgreBites;
 
+	Ogre::StringVector items;
+
 	mTrayMgr->showLogo(OgreBites::TL_CENTER);
 	//start up panel
-	Ogre::StringVector items;
 	items.push_back("\t\t\t\t\tMaze Tower Defense");
 	mStartPanel = mTrayMgr->createParamsPanel(OgreBites::TL_CENTER,"InfoPanel",400,items);
-
-	//status panel for debugging
+	//status panel for agent health is built in createStatusGUI(),
+	//since agents aren't built in until creatBoard() is finished
 	items.clear();
-	items.push_back("Current Mode: ");
-	items.push_back("Cam: ");
-	items.push_back("Selection: ");
-	mStatusPanel = mTrayMgr->createParamsPanel(OgreBites::TL_BOTTOMLEFT,"Status",300,items);
-	mStatusPanel->setParamValue(0, "N/A");
-	mStatusPanel->setParamValue(1, Ogre::StringConverter::toString(Ogre::Vector3::ZERO));
-	mStatusPanel->setParamValue(2, "N/A");
 
 	//power slider set up
     mSampleSlider = mTrayMgr->createThickSlider(TL_CENTER, "Lives", "Lives", 400, 80, 0, 0, 0);
@@ -623,17 +616,17 @@ void GameApplication::buttonHit(OgreBites::Button* b)
 // Callback method for sliders
 void GameApplication::sliderMoved(OgreBites::Slider* s)
 {
-	if (s->getName()=="Lives")
+	if (s->getName() == "Lives")
 	{
-		mLives=s->getValue();
+		mLives = s->getValue();
 	}
-	if (s->getName()=="Walls")
+	if (s->getName() == "Walls")
 	{
-		mWalls=s->getValue();
+		mWalls = s->getValue();
 	}
-	if (s->getName()=="Waypoints")
+	if (s->getName() == "Waypoints")
 	{
-		mWaypoint=s->getValue();
+		mWaypoint = s->getValue();
 	}
 }
 
@@ -647,18 +640,21 @@ void GameApplication::createBoard(){
 	Ogre::SceneNode* mTran;			//
 	Ogre::SceneNode* mTree;			//
 	wAgent=0;
+
+	// set up waypoints
 	for (int i = 0; i < mWaypoint; i++){
 		float x, y;
 		//keeps looking for empty
-		while (true){
+		while (true)
+		{
 			srand(time(NULL));
 			x = rand() % grid->getRow();
 			y = rand() % grid->getCol();
-			if (grid->getNode(x,y)->isClear()){ 
+			if (grid->getNode(x,y)->isClear())
 					break;
-			}
 		}
-		if (i==0){
+		if (i == 0)
+		{
 			restartR=x;
 			restartC=y;
 		}
@@ -679,7 +675,7 @@ void GameApplication::createBoard(){
 
 		//All the numbers
 		ent = mSceneMgr->createEntity(getNewName(), Ogre::SceneManager::PT_CUBE);
-		ent->setMaterialName("Examples/floor"+Ogre::StringConverter::toString(i));
+		ent->setMaterialName("Examples/floor" + Ogre::StringConverter::toString(i));
 
 		mTran = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		mTran->setInheritScale(false);
@@ -690,25 +686,25 @@ void GameApplication::createBoard(){
 
 	}
 
-	//
+	// set up walls
 	mTree = mSceneMgr->getRootSceneNode()->createChildSceneNode("nTree");
-	for (int i = 0; i < mWalls; i++){
+	for (int i = 0; i < mWalls; i++)
+	{
 		float x, y;
 		//random grid location on the board not already a waypoint
-		while (true){
-			
+		while (true)
+		{
 			x = rand() % grid->getRow();
 			y = rand() % grid->getCol();
 			
-			if (grid->getNode(x,y)->isClear()){ 
+			if (grid->getNode(x,y)->isClear())
+			{ 
 				//grid->getNode(x,y)->setOccupied(); 
-				if (grid->buildCheck(x,y)){
+				if (grid->buildCheck(x,y))
 					break;	//A break?!?! Whyyyyyyy D:
-				}
 				//grid->getNode(x,y)->setClear(); 
 			}
 		}
-		
 		ent = mSceneMgr->createEntity(getNewName(), Ogre::SceneManager::PT_CUBE);
 		ent->setMaterialName("2 - Default");
 		//Examples/Rockwall
@@ -721,26 +717,42 @@ void GameApplication::createBoard(){
 		mNode->scale(0.5f, 0.2f, 0.5f); // cube is 100 x 100
 		grid->getNode(x,y)->setOccupied();  // indicate that agents can't pass through // cube is 100 x 100
 		mNode->setPosition(grid->getPosition(x,y).x, 10.0f, grid->getPosition(x,y).z);
-		//std::cout<<Ogre::Math::RangeRandom(0,100);
-
 	}
+
 	//Static geomerty
 	sgNode = mSceneMgr->createStaticGeometry("StaticTree");
 	sgNode->addSceneNode(mSceneMgr->getSceneNode("nTree"));
 	sgNode->build();
 	mTree->removeAndDestroyAllChildren();
 
-	for (int i = 0; i < (grid->waypoints.size()); i++){
+	for (int i = 0; i < (grid->waypoints.size()); i++)
 		grid->waypoints[i]->setClear();
-	}
+
 	grid->printToFile();
+
+	//build agents
 	for (int i = 0; i < 5; i++)
 	{
 		Agent* a = new Agent(mSceneMgr, "Enemy"+i, "sinbad.mesh", 30, 5, grid,grid->waypoints.front());
 		a->toggleVisibility(false);
 		agentList.push_back(a);
 	}
+}
 
+// create the agent's status gui, which will display their health
+void
+GameApplication::createStatusGUI()
+{
+	Ogre::StringVector items;			//establishes what is in the parameter gui
+	std::list<Agent*>::iterator iterA;
+	int count = 0;
 
+	for (iterA = agentList.begin(); iterA != agentList.end(); iterA++)
+		items.push_back("Agent " +  Ogre::StringConverter::toString(count++));
+
+	mStatusPanel = mTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "Agent Status", 200, items);
+	count = 0;
+	for (iterA = agentList.begin(); iterA != agentList.end(); iterA++)
+		mStatusPanel->setParamValue(count++, "N/A");
 }
 
