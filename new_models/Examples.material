@@ -636,10 +636,14 @@ material Examples/Hilite/Yellow
 	{
 		pass
 		{
-
+			lighting off
+			scene_blend alpha_blend
+			depth_write off
+ 
 			texture_unit
 			{
 				texture dkyellow.png
+				alpha_op_ex source1 src_manual src_texture 0.5      
 			}
 		}
 	}

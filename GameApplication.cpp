@@ -90,6 +90,23 @@ GameApplication::loadEnv()
 	mSelected->setPosition(grid->getPosition(0,0).x, 1.0f, grid->getPosition(0,0).z);
 	mSelected->setVisible(false,true);
 
+	Ogre::Entity* ent2 = mSceneMgr->createEntity("trap", "geosphere4500.mesh");
+	ent2->setMaterialName("Examples/Hilite/Yellow");
+	//Examples/Chrome
+	ent2->setCastShadows(false);
+	/*ent = mSceneMgr->createEntity("waypoint" + i, "geosphere4500.mesh");
+		ent->setMaterialName("Examples/TextureEffect3");
+		//Examples/Chrome
+		ent->setCastShadows(false);
+		mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		mNode->attachObject(ent);
+		*/
+	mTrap = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+	mTrap->attachObject(ent2);
+	mTrap->scale(0.7f,0.02f,0.7f); // cube is 100 x 100
+	mTrap->setPosition(grid->getPosition(0,0).x, 1.0f, grid->getPosition(0,0).z);
+	mTrap->setVisible(false,true);
+
 }
 
 void // Set up lights, shadows, etc
@@ -181,6 +198,7 @@ GameApplication::toggleState(GameState s)
 		nextAgent = agentList.begin();
 
 		mSelected->setVisible(false,true);
+		mTrap->setVisible(false,true);
 		initCreepPhaseB->hide();
 
 		//adjusting the camera for after the build
@@ -480,6 +498,9 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		Ogre::AxisAlignedBox objBox = floor->getWorldBoundingBox();
 		std::pair<bool,Ogre::Real> inter = mouseRay.intersects(objBox);
 		Ogre::Vector3 point = mouseRay.getPoint(inter.second);
+		if (!inter.first){
+			return true;
+		}
 		int halfsize = (NODESIZE*15)/2;
 		point[0] += halfsize;
 		//point[1]-=halfsize;
@@ -496,6 +517,25 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		selectedC = indexCol;
 		//std::cout<<"row "<<indexRow<< "  " <<"col "<<indexCol<<std::endl;
 		return true;
+	}
+	if (State == GAME_RUNNING){
+		Ogre::Vector3 mousePos;
+		mousePos.x = arg.state.X.abs;
+		mousePos.y = arg.state.Y.abs;
+		mousePos.z = arg.state.Z.abs;
+		
+ 
+		//then send a raycast straight out from the camera at the mouse's position
+		Ogre::Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.x/float(arg.state.width), mousePos.y/float(arg.state.height));
+		//mRayScnQuery->setRay(mouseRay);
+		Ogre::AxisAlignedBox objBox = floor->getWorldBoundingBox();
+		std::pair<bool,Ogre::Real> inter = mouseRay.intersects(objBox);
+		Ogre::Vector3 point = mouseRay.getPoint(inter.second);
+		if (!inter.first){
+			return true;
+		}
+		mTrap->setPosition(point);
+		mTrap->setVisible(true,true);
 	}
     mCameraMan->injectMouseDown(arg, id);
     return true;
@@ -601,7 +641,7 @@ void GameApplication::sliderMoved(OgreBites::Slider* s)
 // Brandon the refactor is monster was here...
 void GameApplication::createBoard(){
 	Ogre::StaticGeometry* sgNode;	//used to make walls static objects for faster rendering
-	Ogre::MovableText* msg;			//text at each waypoint
+	//Ogre::MovableText* msg;			//text at each waypoint
 	Ogre::Entity* ent;				//used to create entities at certain points
 	Ogre::SceneNode* mNode;			//
 	Ogre::SceneNode* mTran;			//
