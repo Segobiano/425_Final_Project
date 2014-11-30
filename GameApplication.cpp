@@ -73,7 +73,7 @@ GameApplication::loadEnv()
 	
 	//create a floor entity, give it material, and place it at the origin
 	floor = mSceneMgr->createEntity("Floor", "floor");
-	floor->setMaterialName("Examples/GrassFloor");
+	floor->setMaterialName("Examples/floord");
 	floor->setCastShadows(false);
 	mSceneMgr->getRootSceneNode()->attachObject(floor);
 	mSceneMgr->setSkyDome(true, "Examples/SpaceSkyPlane", 5, 8);
@@ -154,7 +154,10 @@ GameApplication::toggleState(GameState s)
 	}
 	else if (State == GAME_BUILD)
 	{
-	 
+		//turns on those numbers of waypoints
+		for (int p=0;p<mNumList.size();p++){
+			mNumList[p]->setVisible(true);
+		}
 		wAgent=0;
 		//toggle overview with camera with fixed position and showing grid outlines
 
@@ -169,6 +172,11 @@ GameApplication::toggleState(GameState s)
 	else if (State == GAME_RUNNING)
 	{
 		
+		//turns off the numbers
+		for (int p=0;p<mNumList.size();p++){
+			mNumList[p]->setVisible(false);
+		}
+
 		moveAround=grid->buildPath();
 		nextAgent = agentList.begin();
 
@@ -628,17 +636,18 @@ void GameApplication::createBoard(){
 		//mNode->showBoundingBox(true);
 		grid->waypoints.push_back(grid->getNode(x,y));
 
-		msg = new Ogre::MovableText("TXT_001", Ogre::StringConverter::toString(i));
-		msg->setTextAlignment(Ogre::MovableText::H_CENTER, Ogre::MovableText::V_ABOVE); // Center horizontally and display above the node
-		msg->setCharacterHeight(10);
-		msg->setSpaceWidth(50);
 
-		mTran = mNode->createChildSceneNode();
+		//All the numbers
+		ent = mSceneMgr->createEntity(getNewName(), Ogre::SceneManager::PT_CUBE);
+		ent->setMaterialName("Examples/floor"+Ogre::StringConverter::toString(i));
+
+		mTran = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		mTran->setInheritScale(false);
-		mTran->translate(0, 40, 0);
-		mTran->scale(5.0f, 5.0f, 5.0f); // cube is 100 x 100
-		//msg->setAdditionalHeight( 2.0f ); //msg->setAdditionalHeight( ei.getRadius() ) // apparently not needed from 1.7*/
-		mTran->attachObject(msg);
+		mTran->attachObject(ent);
+		mTran->scale(0.5f, 0.5f, 0.5f); // cube is 100 x 100
+		mTran->setPosition(grid->getPosition(x,y).x, 10.0f, grid->getPosition(x,y).z);
+		mNumList.push_back(mTran);
+
 	}
 
 	//
