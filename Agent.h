@@ -76,13 +76,13 @@ public:
 	std::deque<Ogre::Vector3> mWalkList;
 
 	double howFar(Agent* g);
-
+	void adjustSpeed(Ogre::Real r);					// increment/decrement speed
 	void setPosition(float x, float y, float z);	// set position
 	Ogre::Vector3 getPosition();					// get position of agent
 	
-	void update(Ogre::Real deltaTime);						// update the agent
-	void moveTo(GridNode* g);								// Moves agent
-	void moveAgent(std::list<GridNode*> gn);				// moves agent the shortest path
+	void update(Ogre::Real deltaTime);				// update the agent
+	void moveTo(GridNode* g);						// Moves agent
+	void moveAgent(std::list<GridNode*> gn);		// moves agent the shortest path
 
 	void setBaseAnimation(AnimID id, bool reset = false);	// choose animation to display
 	void setTopAnimation(AnimID id, bool reset = false);
@@ -90,10 +90,11 @@ public:
 	void toggleVisibility(bool b);	// toggle agent invisible or visible
 	bool isVisible();				// check if agent is visible
 	
-	float checkHealth() { return mHealth; }		// check agent's health
+	float checkHealth() { return mHealth; }	// check agent's health
 
 	bool intersects(Ogre::Entity* e);		// agent intersects with an entity
+	
 	bool isActive() { return active; }
-	void toggleActive(bool b);
+	void toggleActive(bool b);				// toggle agent to active or inactive state
 
 };

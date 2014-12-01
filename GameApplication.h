@@ -39,6 +39,7 @@ private:
 	int mWalls;
 	int mWaypoint;
 	int wAgent;
+	int round;
 
 	float counter;	//timer determines the release of the next agent
 	float cash;
@@ -81,7 +82,7 @@ private:
 	void loadObjects();		// Load other props or objects (e.g. furniture)
 	void loadCharacters();	// Load actors, agents, characters
 	void toggleState(GameState s);	//toggle game to change states
-	void createStatusGUI();	// creat a GUI to display agent status
+	//void createStatusGUI();	// creat a GUI to display agent status
 	
 public:
     GameApplication(void);			//constructor

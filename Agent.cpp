@@ -243,7 +243,7 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 	   {
 		   mBodyNode->setPosition(mDestination);
 		   mDirection = Ogre::Vector3::ZERO;
-		   if (! nextLocation())
+		   if (!nextLocation())
 		   {                  
 			   setBaseAnimation(ANIM_IDLE_BASE);
 			   setTopAnimation(ANIM_IDLE_TOP);
@@ -340,8 +340,11 @@ Agent::printPathToFile()
 void
 Agent::moveAgent(std::list<GridNode*> gn)
 {
+	mWalkList.clear();
+	mDirection = Ogre::Vector3::ZERO;
 	Ogre::Vector3 location(0,0,0);
-	for (std::list<GridNode*>::iterator it=gn.begin(); it != gn.end(); ++it){
+	for (std::list<GridNode*>::iterator it = gn.begin(); it != gn.end(); ++it)
+	{
 		location = grid->getPosition((*it)->getRow(),(*it)->getColumn());
 		location[1] = height;
 		
@@ -387,4 +390,11 @@ void
 Agent::toggleActive(bool b)
 {
 	active = b;
+}
+
+// increment/decrement speed
+void 
+Agent::adjustSpeed(Ogre::Real r)					
+{ 
+	mWalkSpeed += r;
 }

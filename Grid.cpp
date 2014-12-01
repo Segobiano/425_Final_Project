@@ -536,7 +536,6 @@ Grid::AStar(GridNode* s,GridNode* g){
 					}
 				}
 			}
-
 		}
 	}
 	
@@ -580,12 +579,13 @@ bool Grid::blockCheck(int r,int c){
 }
 
 
-
-std::list<GridNode*> Grid::buildPath(){
+// build the path each agent will follow to each waypoint
+std::list<GridNode*> Grid::buildPath()
+{
 	std::list<GridNode*> finalpath;
-	for (int i=0;i<(waypoints.size()-1);i++){
-		
-		std::list<GridNode*> path = AStar(waypoints[i],waypoints[i+1]);//This is the function that does the work
+	for (int i = 0; i< (waypoints.size() - 1); i++)
+	{	
+		std::list<GridNode*> path = AStar(waypoints[i], waypoints[i+1]); //This is the function that does the work
 		finalpath.insert(finalpath.end(), path.begin(), path.end());
 	}
 	return finalpath;
