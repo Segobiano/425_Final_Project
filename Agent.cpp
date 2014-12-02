@@ -19,7 +19,6 @@ Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string fil
 	mBodyNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(); // create a new scene node
 	mBodyEntity = mSceneMgr->createEntity(name, filename); // load the model
 	mBodyNode->attachObject(mBodyEntity);	// attach the model to the scene node
-
 	
 	mBodyNode->setPosition(grid->getPosition(myNode->getRow(),myNode->getColumn()));
 	mBodyNode->translate(0, height, 0); // make the Ogre stand on the plane (almost)
@@ -219,21 +218,21 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 	// Set idle animation
 	if (mDirection == Ogre::Vector3::ZERO)
 	{
-            if (nextLocation()) 
-            {
-				Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-					if ((1.0f + src.dotProduct(mDirection)) < 0.0001f) 
-					{
-						mBodyNode->yaw(Ogre::Degree(180));
-					}
-					else
-					{
-						Ogre::Quaternion quat = src.getRotationTo(mDirection);
-						mBodyNode->rotate(quat);
-					}
-				setBaseAnimation(ANIM_RUN_BASE);
-				setTopAnimation(ANIM_RUN_TOP);
-             }
+		if (nextLocation()) 
+        {
+			Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+				if ((1.0f + src.dotProduct(mDirection)) < 0.0001f) 
+				{
+					mBodyNode->yaw(Ogre::Degree(180));
+				}
+				else
+				{
+					Ogre::Quaternion quat = src.getRotationTo(mDirection);
+					mBodyNode->rotate(quat);
+				}
+			setBaseAnimation(ANIM_RUN_BASE);
+			setTopAnimation(ANIM_RUN_TOP);
+		}
 	}
 	else
 	{

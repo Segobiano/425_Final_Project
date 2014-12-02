@@ -8,8 +8,11 @@
 #include <vector>
 #include <assert.h>
 #include "GameApplication.h"
+#include "Tower.h"
 
 #define NODESIZE 50.0
+
+class Tower;
 
 class GridNode {
 private:
@@ -17,6 +20,8 @@ private:
 	int rCoord;			// row coordinate
 	int cCoord;			// column coordinate
 	bool clear;			// is the node walkable?
+
+	Tower* mTower;		//pointer to tower placed at this node, if there isn't one, NULL
 			
 public:
 	GridNode();			// default constructor
@@ -47,6 +52,9 @@ public:
 	Ogre::Vector3 getPosition(int rows, int cols);	// return the position of this node
 	
 	bool isClear();					// is the node walkable
+
+	void setTower(Tower* t);		// getters/setter for tower on node
+	Tower* getTower();
 
 };
 

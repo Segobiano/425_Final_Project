@@ -30,6 +30,7 @@ GridNode::GridNode(int nID, int row, int column, bool isC)
 	this->wp = false;
 	this->entity = NULL;
 	this->mSceneNode = NULL;
+	this->mTower = NULL;
 
 	if (isC)
 		this->contains = '.';
@@ -132,10 +133,23 @@ GridNode::isClear()
 }
 
 ////////////////////////////////////////////////////////////////
-// build an entity at the node, but only use it for its bounding
-// box. 
+//tower getters and setters, if a node has a tower
+void 
+GridNode::setTower(Tower* t)
+{
+	if (t == NULL) 
+	{  
+		mTower = NULL;
+	}
+	else mTower = t;
+}
 
-
+Tower* 
+GridNode::getTower()
+{
+	if (!mTower) { return NULL; }
+	return mTower;
+}
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -160,6 +174,7 @@ Grid::Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols)
 			n->setRow(i);
 			n->setColumn(j);
 			n->setID(count);
+			n->setTower(NULL);
 			count++;
 		}
 		

@@ -27,7 +27,7 @@ GameApplication::GameApplication(void)
 	mWaypoint = 0; 
 	round = 1;
 	
-	cash = 0.0;
+	cash = 50.0;
 	counter = 0.0;
 }
 //-------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ GameApplication::toggleState(GameState s)
 		//turns on those numbers of waypoints
 		for (int p = 0; p < mNumList.size(); p++)
 			mNumList[p]->setVisible(true);
-
+		cash += 15;
 		wAgent = 0;
 
 		//toggle overview with camera with fixed position and showing grid outlines
@@ -251,8 +251,8 @@ GameApplication::addTime(Ogre::Real deltaTime)
 				//activate next agent
 				(*nextAgent)->toggleActive(true);
 				(*nextAgent)->toggleVisibility(true);
-				(*nextAgent)->mHealth = round;		//increment health by 30 each round
-				//(*nextAgent)->adjustSpeed(1.5);			//increment speed each round
+				(*nextAgent)->mHealth = round * 15;		//increment health each round
+				(*nextAgent)->adjustSpeed(1.5);			//increment speed each round
 				nextAgent++;
 				counter = 0.0;
 			}
@@ -265,11 +265,12 @@ GameApplication::addTime(Ogre::Real deltaTime)
 			{
 				if ((*iterA)->isActive())
 				{
-					//update agent's status panel
+					//update agent's status panel (Not working)
 					//mStatusPanel->setParamValue(gui_count,  Ogre::StringConverter::toString((*iterA)->mHealth) + "%");
+
 					if ((*iterA)->checkHealth() <= 0)	//killed an agent
 					{
-						cash += 100;	//earn cash for the kill
+						cash += 10;	//earn cash for the kill
 						(*iterA)->mWalkList.clear(); 
 						(*iterA)->toggleVisibility(false);
 						(*iterA)->toggleActive(false);
@@ -326,6 +327,7 @@ GameApplication::addTime(Ogre::Real deltaTime)
 	//update status window
 	mStatusPanel->setParamValue(0, Ogre::StringConverter::toString(round));
 	mStatusPanel->setParamValue(1, Ogre::StringConverter::toString(mLives));
+	mStatusPanel->setParamValue(2, "$" + Ogre::StringConverter::toString(cash));
 
 	//update camera
 	mCamera->move(vTranslate);
@@ -433,17 +435,41 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
     }
 	else if (arg.key == OIS::KC_EQUALS)	//build a test tower
 	{
-		if (selectedNode && selectedNode->isClear()&&grid->blockCheck(selectedR,selectedC))
+		if (selectedNode && selectedNode->isClear() && grid->blockCheck(selectedR, selectedC))
 		{
-			int static count = 0;
-			count++;
-			Tower* t = new Tower(	mSceneMgr, grid, selectedNode, 
-									"Tower" + Ogre::StringConverter::toString(count), 
-									"sensor.mesh" , 18.0, 6, this	);
-			towerList.push_back(t);
+			int cost = 2;
+			if (cash < cost)
+				std::cout << "You need more cash!" << std::endl;
+			else
+			{
+				int static count = 0;
+				count++;
+				Tower* t = new Tower(	mSceneMgr, grid, selectedNode, 
+										"Tower" + Ogre::StringConverter::toString(count), 
+										"sensor.mesh" , 18.0, 6, this	);
+				towerList.push_back(t);
+				cash -= cost;
+			}
 		}
 		else
 			std::cout << "Invalid Space" << std::endl;
+	}
+	else if (arg.key == OIS::KC_MINUS) //upgrade tower
+	{
+		if (selectedNode && (selectedNode->getTower() != NULL))	//upgrade selected tower if there is one
+		{
+			Tower* selected_tower = selectedNode->getTower();
+			int cost = 15 * (selected_tower->getLevel() + 1);
+			if (cash < cost) 
+				std::cout << "You need more cash!" << std::endl;
+			else
+			{
+				selected_tower->levelUp();
+				cash -= cost;
+			}
+		}
+		else
+			std::cout << "Invalid Upgrade" << std::endl;
 	}
    
     mCameraMan->injectKeyDown(arg);
@@ -575,6 +601,7 @@ void GameApplication::createGUI(void)
 	items.clear();
 	items.push_back("Round ");
 	items.push_back("Lives: ");
+	items.push_back("Cash: ");
 	mStatusPanel = mTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "Status", 250, items);
 
 	//power slider set up

@@ -56,6 +56,7 @@ public:
 	~Tower();
 
 	void levelUp();	// level up tower, changing some of its traits
+	int getLevel() { return mLevel; }
 
 	void setStatus(Status s);
 	void setPosition(GridNode* n);	//set to new grid position

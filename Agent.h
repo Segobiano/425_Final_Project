@@ -6,8 +6,10 @@
 #include "BaseApplication.h"
 #include <deque>
 
+//forward declarations
 class GridNode;
 class Grid;
+//
 
 class Agent
 {
@@ -96,5 +98,4 @@ public:
 	
 	bool isActive() { return active; }
 	void toggleActive(bool b);				// toggle agent to active or inactive state
-
 };

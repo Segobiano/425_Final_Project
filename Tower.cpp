@@ -3,11 +3,17 @@
 Tower::Tower(Ogre::SceneManager* sceneMgr, Grid* g, GridNode* n, std::string name, 
 			 std::string filename, float height, float scale, GameApplication* game)
 {
+	if (g == NULL || n == NULL || game == NULL)
+	{
+		std::cout << "ERROR: Invalid Tower Parameter(s)." << std::endl;
+		return;
+	}
+
 	mSceneMgr = sceneMgr;
-	mNode = n;
 	mHeight = height;
 	mGame = game;
 	grid = g;
+	mNode = n;
 
 	//set up tower in scene
 	if (mSceneMgr == NULL)
@@ -19,7 +25,7 @@ Tower::Tower(Ogre::SceneManager* sceneMgr, Grid* g, GridNode* n, std::string nam
 	mBodyNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(); // create a new scene node
 	mBodyEntity = mSceneMgr->createEntity(name, filename); // load the model
 	mBodyEntity->setCastShadows(false);
-	mBodyEntity->setMaterialName("Examples/Chrome");
+	mBodyEntity->setMaterialName("Examples/BumpyMetal");
 	//Examples/Hilite/Yellow
 	//Examples/RustySteel
 	mBodyNode->attachObject(mBodyEntity);		// attach the model to the scene node
@@ -30,7 +36,7 @@ Tower::Tower(Ogre::SceneManager* sceneMgr, Grid* g, GridNode* n, std::string nam
 
 	//set up orb visuals
 	orbEntity = mSceneMgr->createEntity(name + "'s orb", "geosphere4500.mesh");
-	orbEntity->setMaterialName("Examples/TextureEffect2"); // change this!!!!
+	orbEntity->setMaterialName("Examples/TextureEffect2");
 	//Examples/Chrome
 	//Examples/Hilite/Yellow
 	//Examples/TextureEffect1
@@ -51,6 +57,8 @@ Tower::Tower(Ogre::SceneManager* sceneMgr, Grid* g, GridNode* n, std::string nam
 	orb_speed = 0.5;
 	reload_time = 5.0;	//default reload time
 	time_til_shoot = reload_time;
+
+	mNode->setTower(this);		// node that holds tower should point to it
 }
 
 // return whether agent is within range of the tower
@@ -130,11 +138,7 @@ Tower::search(std::list<Agent*> agentList)
 		{
 			mTarget = (*iter);	// set agent as target
 			mStatus = SHOOTING;
-
-			//set orb as visible and ready it to shoot
-			//std::cout << "target accuired." << std::endl;
 			orbNode->setVisible(true);
-
 			return;				// found a target, quit looking
 		}
 	}
@@ -153,11 +157,13 @@ Tower::levelUp()
 	{
 		orb_speed = 1.0;
 		range += 20;
+		mBodyEntity->setMaterialName("Examples/Chrome");
 	}
 	else if (mLevel == 2)
 	{
 		orb_speed = 1.2;
 		range += 30;
+		mBodyEntity->setMaterialName("Examples/TextureEffect1");
 	}
 	else // maxed out, can't get more powerful than this
 		return;
@@ -191,8 +197,7 @@ Tower::update(Ogre::Real deltaTime, std::list<Agent*> agentList)
 	}
 	if (mStatus == SEARCHING)
 	{
-		//search();	//check for target, update status if one is found
-		search(agentList);
+		search(agentList);	// check for target, update status if one is found
 	}
 	if (mStatus == SHOOTING)
 	{
@@ -212,7 +217,7 @@ Tower::update(Ogre::Real deltaTime, std::list<Agent*> agentList)
 		}
 		else shoot(deltaTime);	// update orb
 	}
-	else //tower is inactive
+	else // tower is inactive
 	{
 		//do nothing?
 	}
