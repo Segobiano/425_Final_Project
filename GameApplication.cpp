@@ -91,22 +91,17 @@ GameApplication::loadEnv()
 	mSelected->setPosition(grid->getPosition(0,0).x, 1.0f, grid->getPosition(0,0).z);
 	mSelected->setVisible(false,true);
 
-	Ogre::Entity* ent2 = mSceneMgr->createEntity("trap", "geosphere4500.mesh");
+	ent2 = mSceneMgr->createEntity("trap", "geosphere4500.mesh");
 	ent2->setMaterialName("Examples/Hilite/Yellow");
 	//Examples/Chrome
 	ent2->setCastShadows(false);
-	/*ent = mSceneMgr->createEntity("waypoint" + i, "geosphere4500.mesh");
-		ent->setMaterialName("Examples/TextureEffect3");
-		//Examples/Chrome
-		ent->setCastShadows(false);
-		mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		mNode->attachObject(ent);
-		*/
+	
 	mTrap = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 	mTrap->attachObject(ent2);
-	mTrap->scale(0.7f,0.02f,0.7f); // cube is 100 x 100
-	mTrap->setPosition(grid->getPosition(0,0).x, 1.0f, grid->getPosition(0,0).z);
+	mTrap->scale(0.3f,0.02f,0.3f); // cube is 100 x 100
+	mTrap->setPosition(grid->getPosition(0,0).x, 20.0f, grid->getPosition(0,0).z);
 	mTrap->setVisible(false,true);
+	//mTrap->showBoundingBox(true);
 
 }
 
@@ -159,7 +154,7 @@ GameApplication::toggleState(GameState s)
 	if (State == GAME_MENU)	//first state
 	{
 		mTrayMgr->showAll();
-		mTrayMgr->getTrayContainer(OgreBites::TL_TOPRIGHT)->hide();		//show only the center tray for start menu
+		mTrayMgr->getTrayContainer(OgreBites::TL_BOTTOMLEFT)->hide();		//show only the center tray for start menu
 	}
 	else if (State == GAME_LOAD)
 	{
@@ -170,6 +165,8 @@ GameApplication::toggleState(GameState s)
 	{
 		vTranslate = Ogre::Vector3::ZERO;	//stop camera movement
 		
+		mTrap->setVisible(false);
+		mTrapVis=false;
 		//turns on those numbers of waypoints
 		for (int p = 0; p < mNumList.size(); p++)
 			mNumList[p]->setVisible(true);
@@ -182,10 +179,10 @@ GameApplication::toggleState(GameState s)
 
 		mTrayMgr->getTrayContainer(OgreBites::TL_CENTER)->hide();	//hide the menu, by hiding the center tray
 		mTrayMgr->getTrayContainer(OgreBites::TL_TOPLEFT)->show();	//status panel for debugging info
-		mTrayMgr->getTrayContainer(OgreBites::TL_TOPRIGHT)->show();	//reveal top applicable trays
+		mTrayMgr->getTrayContainer(OgreBites::TL_BOTTOMLEFT)->show();	//reveal top applicable trays
 		mStatusPanel->show();
 		initCreepPhaseB->show();
-		endGameB->show();	
+		//endGameB->show();	
 	}
 	else if (State == GAME_RUNNING)
 	{
@@ -199,7 +196,7 @@ GameApplication::toggleState(GameState s)
 		mSelected->setVisible(false,true);
 		mTrap->setVisible(false,true);
 		initCreepPhaseB->hide();
-
+		//
 		//adjusting the camera for after the build
 		mCamera->setPosition(0, 600, 300);
 
@@ -265,6 +262,14 @@ GameApplication::addTime(Ogre::Real deltaTime)
 			{
 				if ((*iterA)->isActive())
 				{
+					//trap is visible and agent is on it
+					if (mTrapVis&&(*iterA)->intersects(ent2)){
+						//std::cout<<"print stuff"<<std::endl;
+						(*iterA)->halfspeed();
+					}
+					else{
+						(*iterA)->fullspeed();
+					}
 					//update agent's status panel (Not working)
 					//mStatusPanel->setParamValue(gui_count,  Ogre::StringConverter::toString((*iterA)->mHealth) + "%");
 
@@ -342,6 +347,7 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
     {
         mTrayMgr->toggleAdvancedFrameStats();
     }
+	/*///this breaks if we allow G press
     else if (arg.key == OIS::KC_G)   // toggle visibility of even rarer debugging details
     {
         if (mDetailsPanel->getTrayLocation() == OgreBites::TL_NONE)
@@ -354,7 +360,7 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
             mTrayMgr->removeWidgetFromTray(mDetailsPanel);
             mDetailsPanel->hide();
         }
-    }
+    }*/
     else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
     {
         Ogre::String newVal;
@@ -433,11 +439,11 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
 		//		(*iterA)->moveAgent(moveAround);
 				//(*iterA)->mWalkList=moveAround;
     }
-	else if (arg.key == OIS::KC_EQUALS)	//build a test tower
+	else if (arg.key == OIS::KC_B)	//build a test tower
 	{
 		if (selectedNode && selectedNode->isClear() && grid->blockCheck(selectedR, selectedC))
 		{
-			int cost = 2;
+			int cost = 4;
 			if (cash < cost)
 				std::cout << "You need more cash!" << std::endl;
 			else
@@ -454,7 +460,7 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
 		else
 			std::cout << "Invalid Space" << std::endl;
 	}
-	else if (arg.key == OIS::KC_MINUS) //upgrade tower
+	else if (arg.key == OIS::KC_U) //upgrade tower
 	{
 		if (selectedNode && (selectedNode->getTower() != NULL))	//upgrade selected tower if there is one
 		{
@@ -490,6 +496,7 @@ bool GameApplication::mouseMoved( const OIS::MouseEvent &arg )
 	// by updating a translation matrix to use in addTime()
 	if (State == GAME_RUNNING)	
 	{
+		
 		Ogre::Vector3 mousePos;
 		mousePos.x = arg.state.X.abs;
 		mousePos.y = arg.state.Y.abs;
@@ -518,7 +525,9 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 {
 	if (mTrayMgr->injectMouseDown(arg, id)) return true;
 	//Clicking code
+	
 	if (State == GAME_BUILD){
+		
 		Ogre::Vector3 mousePos;
 		mousePos.x = arg.state.X.abs;
 		mousePos.y = arg.state.Y.abs;
@@ -550,7 +559,8 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		//std::cout<<"row "<<indexRow<< "  " <<"col "<<indexCol<<std::endl;
 		return true;
 	}
-	if (State == GAME_RUNNING){
+	if (State == GAME_RUNNING&&!mTrapVis){
+		mTrapVis=true;
 		Ogre::Vector3 mousePos;
 		mousePos.x = arg.state.X.abs;
 		mousePos.y = arg.state.Y.abs;
@@ -566,6 +576,7 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		if (!inter.first){
 			return true;
 		}
+		point[1]=10;
 		mTrap->setPosition(point);
 		mTrap->setVisible(true,true);
 	}
@@ -602,6 +613,9 @@ void GameApplication::createGUI(void)
 	items.push_back("Round ");
 	items.push_back("Lives: ");
 	items.push_back("Cash: ");
+	items.push_back("Mouse click to select");
+	items.push_back("Press B to build");
+	items.push_back("Press U to upgrade");
 	mStatusPanel = mTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "Status", 250, items);
 
 	//power slider set up
@@ -622,9 +636,11 @@ void GameApplication::createGUI(void)
 
 	initBuildPhaseB = mTrayMgr->createButton(TL_CENTER, "Build", "Build", 120.0);		//this button toggles the build phase
 
-	initCreepPhaseB = mTrayMgr->createButton(TL_TOPRIGHT, "Creep", "Creep", 120.0);		//don't show this one yet, its for build phase
+	initCreepPhaseB = mTrayMgr->createButton(TL_BOTTOMLEFT, "Creep", "Creep", 120.0);		//don't show this one yet, its for build phase
 
-	endGameB = mTrayMgr->createButton(TL_TOPRIGHT, "End", "End", 120.0);				//button to end game prematurely
+	//endGameB = mTrayMgr->createButton(TL_TOPRIGHT, "End", "End", 120.0);				//button to end game prematurely
+
+	
 
 	toggleState(GAME_MENU);
 	//mTrayMgr->showAll();
@@ -638,16 +654,24 @@ void GameApplication::buttonHit(OgreBites::Button* b)
 {
 	if (b->getName() == "Build")
 	{
-		//mTrayMgr->destroyAllWidgetsInTray(OgreBites::TL_CENTER);	//going to remove this, so we don't have to rebuild GUI each time
+		//this needs to get included Winmm.lib
+		std::string path = __FILE__;
+		 path = path.substr(0,1+path.find_last_of('\\')); 
+		 path+= "\\Sounds\\SCTheme.wav"; 
+		 PlaySound(path.c_str(), NULL, SND_LOOP | SND_ASYNC);   
+		 //Credit for the music goes to Blizzard Entertainment  from Starcraft 1 
+
 		toggleState(GAME_LOAD);		//load level
-		//mCamera->roll(Ogre::Radian(Ogre::Degree(180)));
+		
 		toggleState(GAME_BUILD);	//set game into build mode
-		//This moves the camera up
+		
+
+
 		
 	}
 	else if (b->getName() == "Creep")
 	{
-		std::cout << "This button will activate creep mode. " << std::endl;
+		//std::cout << "This button will activate creep mode. " << std::endl;
 		toggleState(GAME_RUNNING);
 	}
 }
@@ -776,7 +800,11 @@ void GameApplication::createBoard(){
 		a->toggleVisibility(false);
 		agentList.push_back(a);
 	}
+	
+	mTrapVis=false;
 }
+
+
 
 // create the agent's status gui, which will display their health
 //void

@@ -642,7 +642,7 @@ material Examples/Hilite/Yellow
  
 			texture_unit
 			{
-				texture dkyellow.png
+				texture dkred.png
 				alpha_op_ex source1 src_manual src_texture 0.5      
 			}
 		}

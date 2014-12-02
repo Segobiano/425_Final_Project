@@ -20,8 +20,10 @@ private:
 	std::list<Agent*>::iterator iterAgent;
 	std::list<GridNode*> moveAround;
 	
+	Ogre::Entity* ent2;
 	Ogre::SceneNode* mSelected;
 	Ogre::SceneNode* mTrap;
+	bool mTrapVis;
 	std::vector<Ogre::SceneNode*> mNumList;	
 	
 	int selectedR;
