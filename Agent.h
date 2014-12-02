@@ -69,7 +69,8 @@ private:
 	bool procedural;						// Is this character performing a procedural animation
 
 public:
-
+	void halfspeed();
+	void fullspeed();
 	Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale, Grid* g,GridNode* node);
 	~Agent();
 		
@@ -95,7 +96,7 @@ public:
 	float checkHealth() { return mHealth; }	// check agent's health
 
 	bool intersects(Ogre::Entity* e);		// agent intersects with an entity
-	
+	bool intersectsSphere(Ogre::Entity* e);
 	bool isActive() { return active; }
 	void toggleActive(bool b);				// toggle agent to active or inactive state
 };

@@ -383,6 +383,18 @@ Agent::intersects(Ogre::Entity* e)
 	return mBox.intersects(eBox);
 }
 
+bool
+Agent::intersectsSphere(Ogre::Entity* e)
+{
+	if (e == NULL) { return false; }
+
+	Ogre::AxisAlignedBox mBox = mBodyEntity->getWorldBoundingBox();
+	//Ogre::Real radius= e->getBoundingRadius();
+	Ogre::AxisAlignedBox eBox = e->getBoundingBox();
+	//e->getWorldBoundingSphere
+	e->getBoundingBox();
+	return mBox.intersects(eBox);
+}
 
 // set agent active or inactive
 void
@@ -396,4 +408,14 @@ void
 Agent::adjustSpeed(Ogre::Real r)					
 { 
 	mWalkSpeed += r;
+}
+
+void
+Agent::halfspeed(){
+	mWalkSpeed=20.0f;
+}
+
+void
+Agent::fullspeed(){
+	mWalkSpeed=35.0;
 }
