@@ -32,10 +32,16 @@ TODO:
  Animations! We would love more animations in the game, such as constructing the towers and better shooting animations.
  drawing the path of the agents during the build phase so you can see what it is and how it changes based on where you place your towers.
  Different types of towers.
+ Balance, balance, balance.
 
 Bugs:
-
+ Just found one before turning in. There may be a single tile that is considered occuppied but does not have anything on it. I have not been able to replicate this yet.
 
 Notes:
 Included are the material, mesh, sound, and other files need to run the game. Please move them to their respecive directories in the OGRE3d framework.
 Start menu values determine the difficulty of the game pretty much. If you have more walls, than there is less space for you to place towers, but more natural choke points. Think about how each setting will impact your play through.
+
+Thanks to
+ Tower Art from nazzyc at http://opengameart.org/content/sensorradar-tower
+ Music from Blizzard's Starcraft 1: Brood War
+ This game was made for educational purposes.

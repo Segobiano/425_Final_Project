@@ -248,7 +248,7 @@ GameApplication::addTime(Ogre::Real deltaTime)
 				//activate next agent
 				(*nextAgent)->toggleActive(true);
 				(*nextAgent)->toggleVisibility(true);
-				(*nextAgent)->mHealth = round * 15;		//increment health each round
+				(*nextAgent)->mHealth = round * 16;		//increment health each round
 				//(*nextAgent)->adjustSpeed(1.5);			//increment speed each round
 				nextAgent++;
 				counter = 0.0;
