@@ -211,7 +211,7 @@ GameApplication::toggleState(GameState s)
 		//show game end menu 
 		//closing the end menu will close the game
 		Ogre::String credits;
-		credits += "Maze Tower Defense";
+		credits += "Maze Tower Defense\n";
 		credits += "Authors: Brad Segobiano and Brandon Shea\n";
 		credits += "This game was made for educational purposes, don't sue us!\n";
 		credits += "Tower Art from nazzyc at http://opengameart.org/content/sensorradar-tower \n";
