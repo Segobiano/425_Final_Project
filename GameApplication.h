@@ -110,6 +110,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 
 protected:
+	virtual void okDialogClosed(const Ogre::DisplayString& message);
     virtual void createScene(void);
 };
 

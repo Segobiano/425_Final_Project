@@ -412,10 +412,10 @@ Agent::adjustSpeed(Ogre::Real r)
 
 void
 Agent::halfspeed(){
-	mWalkSpeed=20.0f;
+	mWalkSpeed = 20.0f;
 }
 
 void
 Agent::fullspeed(){
-	mWalkSpeed=35.0;
+	mWalkSpeed = 35.0;
 }

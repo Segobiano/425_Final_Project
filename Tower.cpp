@@ -26,8 +26,6 @@ Tower::Tower(Ogre::SceneManager* sceneMgr, Grid* g, GridNode* n, std::string nam
 	mBodyEntity = mSceneMgr->createEntity(name, filename); // load the model
 	mBodyEntity->setCastShadows(false);
 	mBodyEntity->setMaterialName("Examples/BumpyMetal");
-	//Examples/Hilite/Yellow
-	//Examples/RustySteel
 	mBodyNode->attachObject(mBodyEntity);		// attach the model to the scene node
 	//place in position according to n
 	mBodyNode->setPosition(grid->getPosition(mNode->getRow(), mNode->getColumn()));
@@ -37,9 +35,6 @@ Tower::Tower(Ogre::SceneManager* sceneMgr, Grid* g, GridNode* n, std::string nam
 	//set up orb visuals
 	orbEntity = mSceneMgr->createEntity(name + "'s orb", "geosphere4500.mesh");
 	orbEntity->setMaterialName("Examples/TextureEffect2");
-	//Examples/Chrome
-	//Examples/Hilite/Yellow
-	//Examples/TextureEffect1
 	orbEntity->setCastShadows(false);
 	orbNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 	orbNode->attachObject(orbEntity);

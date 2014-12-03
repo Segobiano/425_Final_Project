@@ -18,7 +18,7 @@ GameApplication::GameApplication(void)
 	start = NULL;
 	goal = NULL;
 
-	Wpnum=0;
+	Wpnum = 0;
 
 	vTranslate = Ogre::Vector3::ZERO;
 
@@ -67,8 +67,8 @@ GameApplication::loadEnv()
 {
 	using namespace Ogre;	// use both namespaces
 	using namespace std;
-	row=15;
-	col=15;
+	row = 15;
+	col = 15;
 	MeshManager::getSingleton().createPlane("floor", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
 		Plane(Vector3::UNIT_Y, 0), row*NODESIZE, col*NODESIZE, row, col, true, 1, row, col, Vector3::UNIT_Z);
 	
@@ -77,7 +77,8 @@ GameApplication::loadEnv()
 	floor->setMaterialName("Examples/floord");
 	floor->setCastShadows(false);
 	mSceneMgr->getRootSceneNode()->attachObject(floor);
-	mSceneMgr->setSkyDome(true, "Examples/SpaceSkyPlane", 5, 8);
+	//mSceneMgr->setSkyDome(true, "Examples/SpaceSkyPlane", 5, 8);
+	mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
 
 	grid = new Grid(mSceneMgr, col, row);
 
@@ -102,7 +103,6 @@ GameApplication::loadEnv()
 	mTrap->setPosition(grid->getPosition(0,0).x, 20.0f, grid->getPosition(0,0).z);
 	mTrap->setVisible(false,true);
 	//mTrap->showBoundingBox(true);
-
 }
 
 void // Set up lights, shadows, etc
@@ -132,17 +132,11 @@ GameApplication::setupEnv()
 
 void // Load other props or objects
 GameApplication::loadObjects()
-{
-	// Brandon Note: Don't think we'll use this method, since we place towers, and spheres are loaded elsewhere
-}
+{}
 
 void // Load actors, agents, characters
 GameApplication::loadCharacters()
-{
-	// Brandon Note: will need to load an agent at each sphere/waypoint
-	// agent = new Agent(this->mSceneMgr, "Sinbad", "Sinbad.mesh");
-
-}
+{}
 
 //toggle game into a new game state
 //and apply the appropiate gui for that state\
@@ -214,11 +208,17 @@ GameApplication::toggleState(GameState s)
 	}
 	else if (State == GAME_END)
 	{
-		//clear agent list
-		//clear towers
-		//clear projectiles
-		//clear spheres
-		//show game end menu GUI
+		//show game end menu 
+		//closing the end menu will close the game
+		Ogre::String credits;
+		credits += "Maze Tower Defense";
+		credits += "Authors: Brad Segobiano and Brandon Shea\n";
+		credits += "This game was made for educational purposes, don't sue us!\n";
+		credits += "Tower Art from nazzyc at http://opengameart.org/content/sensorradar-tower \n";
+		credits += "Music from Blizzard's Starcraft 1: Brood War\n";
+		credits += "Special Thanks to Professor Allbeck! ;D\n";
+		credits += "Hit OK to exit.";
+		mTrayMgr->showOkDialog("Game Over!", credits);
 	}
 }
 
@@ -227,7 +227,7 @@ GameApplication::addTime(Ogre::Real deltaTime)
 {	
 	if (State == GAME_BUILD)
 	{
-		//draw lines showing path
+		//draw openGL lines showing path
 	}
 	else if (State == GAME_RUNNING)
 	{
@@ -249,7 +249,7 @@ GameApplication::addTime(Ogre::Real deltaTime)
 				(*nextAgent)->toggleActive(true);
 				(*nextAgent)->toggleVisibility(true);
 				(*nextAgent)->mHealth = round * 15;		//increment health each round
-				(*nextAgent)->adjustSpeed(1.5);			//increment speed each round
+				//(*nextAgent)->adjustSpeed(1.5);			//increment speed each round
 				nextAgent++;
 				counter = 0.0;
 			}
@@ -263,11 +263,12 @@ GameApplication::addTime(Ogre::Real deltaTime)
 				if ((*iterA)->isActive())
 				{
 					//trap is visible and agent is on it
-					if (mTrapVis&&(*iterA)->intersects(ent2)){
-						//std::cout<<"print stuff"<<std::endl;
-						(*iterA)->halfspeed();
+					if (mTrapVis&&(*iterA)->intersects(ent2))
+					{
+						(*iterA)->halfspeed(); //this doesn't allow increasing the speed of the agent each round :(
 					}
-					else{
+					else
+					{
 						(*iterA)->fullspeed();
 					}
 					//update agent's status panel (Not working)
@@ -312,22 +313,18 @@ GameApplication::addTime(Ogre::Real deltaTime)
 		//update traps
 
 		//update towers
-		if (!agentList.empty())	//have to check since it is passed in to tower.update()
+		if (!agentList.empty())	//have to check agent list since it is passed in to tower.update()
 		{
 			std::list<Tower*>::iterator iterT;
 			for (iterT = towerList.begin(); iterT != towerList.end(); iterT++)
 				if (*iterT != NULL)
 					(*iterT)->update(deltaTime, agentList);
 		}
-		//NOTE: orb aren't disapearing because of above chunk
-		//keeps towers from updating if there are no agents.
-
 		if (mLives <= 0)	//out of lives, end game
 		{
 			std::cout << "You lose" << std::endl;
 			toggleState(GAME_END);
 		}
-
 	}
 	//update status window
 	mStatusPanel->setParamValue(0, Ogre::StringConverter::toString(round));
@@ -428,16 +425,6 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
     else if (arg.key == OIS::KC_ESCAPE)
     {
         mShutDown = true;
-    }
-	else if (arg.key == OIS::KC_SPACE)
-    {
-		//std::list<GridNode*> moveAround=grid->buildPath();
-
-		//std::list<Agent*>::iterator iterA;
-		//for (iterA = agentList.begin(); iterA != agentList.end(); iterA++)
-		//	if (*iterA != NULL)
-		//		(*iterA)->moveAgent(moveAround);
-				//(*iterA)->mWalkList=moveAround;
     }
 	else if (arg.key == OIS::KC_B)	//build a test tower
 	{
@@ -573,7 +560,8 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		Ogre::AxisAlignedBox objBox = floor->getWorldBoundingBox();
 		std::pair<bool,Ogre::Real> inter = mouseRay.intersects(objBox);
 		Ogre::Vector3 point = mouseRay.getPoint(inter.second);
-		if (!inter.first){
+		if (!inter.first)
+		{
 			return true;
 		}
 		point[1]=10;
@@ -620,8 +608,8 @@ void GameApplication::createGUI(void)
 
 	//power slider set up
     mSampleSlider = mTrayMgr->createThickSlider(TL_CENTER, "Lives", "Lives", 400, 80, 0, 0, 0);
-	mSampleSlider->setRange(50,100,51);
-	mSampleSlider->setValue(100);
+	mSampleSlider->setRange(1,50,50);
+	mSampleSlider->setValue(20);
 	mTrayMgr->sliderMoved(mSampleSlider);
 
 	mSampleSlider = mTrayMgr->createThickSlider(TL_CENTER, "Walls", "Walls", 400, 80, 0, 0, 0);
@@ -639,8 +627,6 @@ void GameApplication::createGUI(void)
 	initCreepPhaseB = mTrayMgr->createButton(TL_BOTTOMLEFT, "Creep", "Creep", 120.0);		//don't show this one yet, its for build phase
 
 	//endGameB = mTrayMgr->createButton(TL_TOPRIGHT, "End", "End", 120.0);				//button to end game prematurely
-
-	
 
 	toggleState(GAME_MENU);
 	//mTrayMgr->showAll();
@@ -663,11 +649,7 @@ void GameApplication::buttonHit(OgreBites::Button* b)
 
 		toggleState(GAME_LOAD);		//load level
 		
-		toggleState(GAME_BUILD);	//set game into build mode
-		
-
-
-		
+		toggleState(GAME_BUILD);	//set game into build mode		
 	}
 	else if (b->getName() == "Creep")
 	{
@@ -735,7 +717,6 @@ void GameApplication::createBoard(){
 		//mNode->showBoundingBox(true);
 		grid->waypoints.push_back(grid->getNode(x,y));
 
-
 		//All the numbers
 		ent = mSceneMgr->createEntity(getNewName(), Ogre::SceneManager::PT_CUBE);
 		ent->setMaterialName("Examples/floor" + Ogre::StringConverter::toString(i));
@@ -802,6 +783,16 @@ void GameApplication::createBoard(){
 	}
 	
 	mTrapVis=false;
+}
+
+
+////////////////////////////////////////////////////////////////////
+// Callback for the Game Over menu's OK button to close game
+void 
+GameApplication::okDialogClosed(const Ogre::DisplayString& message)
+{
+	mTrayMgr->closeDialog();
+	mShutDown = true;
 }
 
 
