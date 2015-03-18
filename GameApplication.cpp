@@ -92,6 +92,7 @@ GameApplication::loadEnv()
 	mSelected->setPosition(grid->getPosition(0,0).x, 1.0f, grid->getPosition(0,0).z);
 	mSelected->setVisible(false,true);
 
+	// set up trap
 	ent2 = mSceneMgr->createEntity("trap", "geosphere4500.mesh");
 	ent2->setMaterialName("Examples/Hilite/Yellow");
 	//Examples/Chrome
@@ -428,21 +429,19 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
     }
 	else if (arg.key == OIS::KC_B)	//build a test tower
 	{
-		if (selectedNode && selectedNode->isClear() && grid->blockCheck(selectedR, selectedC))
+		int cost = 4;
+		if (cash < cost)
+			std::cout << "You need more cash!" << std::endl;
+
+		else if (selectedNode && selectedNode->isClear() && grid->blockCheck(selectedR, selectedC))
 		{
-			int cost = 4;
-			if (cash < cost)
-				std::cout << "You need more cash!" << std::endl;
-			else
-			{
-				int static count = 0;
-				count++;
-				Tower* t = new Tower(	mSceneMgr, grid, selectedNode, 
-										"Tower" + Ogre::StringConverter::toString(count), 
-										"sensor.mesh" , 18.0, 6, this	);
-				towerList.push_back(t);
-				cash -= cost;
-			}
+			int static count = 0;
+			count++;
+			Tower* t = new Tower(	mSceneMgr, grid, selectedNode, 
+									"Tower" + Ogre::StringConverter::toString(count), 
+									"sensor.mesh" , 18.0, 6, this	);
+			towerList.push_back(t);
+			cash -= cost;
 		}
 		else
 			std::cout << "Invalid Space" << std::endl;
@@ -546,7 +545,7 @@ bool GameApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 		//std::cout<<"row "<<indexRow<< "  " <<"col "<<indexCol<<std::endl;
 		return true;
 	}
-	if (State == GAME_RUNNING&&!mTrapVis){
+	if (State == GAME_RUNNING && !mTrapVis){
 		mTrapVis=true;
 		Ogre::Vector3 mousePos;
 		mousePos.x = arg.state.X.abs;
